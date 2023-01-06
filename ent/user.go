@@ -3,10 +3,14 @@
 package ent
 
 import (
+	"encoding/json"
 	"fmt"
+	"net/url"
 	"strings"
+	"time"
 
 	"entgo.io/ent/dialect/sql"
+	"github.com/google/uuid"
 	"github.com/xlzhangkeke/entdemo/ent/user"
 )
 
@@ -19,6 +23,20 @@ type User struct {
 	Age int `json:"age,omitempty"`
 	// Name holds the value of the "name" field.
 	Name string `json:"name,omitempty"`
+	// Rank holds the value of the "rank" field.
+	Rank float64 `json:"rank,omitempty"`
+	// Active holds the value of the "active" field.
+	Active bool `json:"active,omitempty"`
+	// CreatedAt holds the value of the "created_at" field.
+	CreatedAt time.Time `json:"created_at,omitempty"`
+	// URL holds the value of the "url" field.
+	URL *url.URL `json:"url,omitempty"`
+	// Strings holds the value of the "strings" field.
+	Strings []string `json:"strings,omitempty"`
+	// State holds the value of the "state" field.
+	State user.State `json:"state,omitempty"`
+	// UUID holds the value of the "uuid" field.
+	UUID uuid.UUID `json:"uuid,omitempty"`
 	// Edges holds the relations/edges for other nodes in the graph.
 	// The values are being populated by the UserQuery when eager-loading is set.
 	Edges UserEdges `json:"edges"`
@@ -58,10 +76,20 @@ func (*User) scanValues(columns []string) ([]any, error) {
 	values := make([]any, len(columns))
 	for i := range columns {
 		switch columns[i] {
+		case user.FieldURL, user.FieldStrings:
+			values[i] = new([]byte)
+		case user.FieldActive:
+			values[i] = new(sql.NullBool)
+		case user.FieldRank:
+			values[i] = new(sql.NullFloat64)
 		case user.FieldID, user.FieldAge:
 			values[i] = new(sql.NullInt64)
-		case user.FieldName:
+		case user.FieldName, user.FieldState:
 			values[i] = new(sql.NullString)
+		case user.FieldCreatedAt:
+			values[i] = new(sql.NullTime)
+		case user.FieldUUID:
+			values[i] = new(uuid.UUID)
 		default:
 			return nil, fmt.Errorf("unexpected column %q for type User", columns[i])
 		}
@@ -94,6 +122,52 @@ func (u *User) assignValues(columns []string, values []any) error {
 				return fmt.Errorf("unexpected type %T for field name", values[i])
 			} else if value.Valid {
 				u.Name = value.String
+			}
+		case user.FieldRank:
+			if value, ok := values[i].(*sql.NullFloat64); !ok {
+				return fmt.Errorf("unexpected type %T for field rank", values[i])
+			} else if value.Valid {
+				u.Rank = value.Float64
+			}
+		case user.FieldActive:
+			if value, ok := values[i].(*sql.NullBool); !ok {
+				return fmt.Errorf("unexpected type %T for field active", values[i])
+			} else if value.Valid {
+				u.Active = value.Bool
+			}
+		case user.FieldCreatedAt:
+			if value, ok := values[i].(*sql.NullTime); !ok {
+				return fmt.Errorf("unexpected type %T for field created_at", values[i])
+			} else if value.Valid {
+				u.CreatedAt = value.Time
+			}
+		case user.FieldURL:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field url", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &u.URL); err != nil {
+					return fmt.Errorf("unmarshal field url: %w", err)
+				}
+			}
+		case user.FieldStrings:
+			if value, ok := values[i].(*[]byte); !ok {
+				return fmt.Errorf("unexpected type %T for field strings", values[i])
+			} else if value != nil && len(*value) > 0 {
+				if err := json.Unmarshal(*value, &u.Strings); err != nil {
+					return fmt.Errorf("unmarshal field strings: %w", err)
+				}
+			}
+		case user.FieldState:
+			if value, ok := values[i].(*sql.NullString); !ok {
+				return fmt.Errorf("unexpected type %T for field state", values[i])
+			} else if value.Valid {
+				u.State = user.State(value.String)
+			}
+		case user.FieldUUID:
+			if value, ok := values[i].(*uuid.UUID); !ok {
+				return fmt.Errorf("unexpected type %T for field uuid", values[i])
+			} else if value != nil {
+				u.UUID = *value
 			}
 		}
 	}
@@ -138,6 +212,27 @@ func (u *User) String() string {
 	builder.WriteString(", ")
 	builder.WriteString("name=")
 	builder.WriteString(u.Name)
+	builder.WriteString(", ")
+	builder.WriteString("rank=")
+	builder.WriteString(fmt.Sprintf("%v", u.Rank))
+	builder.WriteString(", ")
+	builder.WriteString("active=")
+	builder.WriteString(fmt.Sprintf("%v", u.Active))
+	builder.WriteString(", ")
+	builder.WriteString("created_at=")
+	builder.WriteString(u.CreatedAt.Format(time.ANSIC))
+	builder.WriteString(", ")
+	builder.WriteString("url=")
+	builder.WriteString(fmt.Sprintf("%v", u.URL))
+	builder.WriteString(", ")
+	builder.WriteString("strings=")
+	builder.WriteString(fmt.Sprintf("%v", u.Strings))
+	builder.WriteString(", ")
+	builder.WriteString("state=")
+	builder.WriteString(fmt.Sprintf("%v", u.State))
+	builder.WriteString(", ")
+	builder.WriteString("uuid=")
+	builder.WriteString(fmt.Sprintf("%v", u.UUID))
 	builder.WriteByte(')')
 	return builder.String()
 }

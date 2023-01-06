@@ -22,3 +22,6 @@ go generate ./ent
 
 ## 生成schema entity
 通过执行migration
+
+[pause]
+https://entgo.io/docs/schema-fields

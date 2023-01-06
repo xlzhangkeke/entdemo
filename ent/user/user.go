@@ -2,6 +2,13 @@
 
 package user
 
+import (
+	"fmt"
+	"time"
+
+	"github.com/google/uuid"
+)
+
 const (
 	// Label holds the string label denoting the user type in the database.
 	Label = "user"
@@ -11,6 +18,20 @@ const (
 	FieldAge = "age"
 	// FieldName holds the string denoting the name field in the database.
 	FieldName = "name"
+	// FieldRank holds the string denoting the rank field in the database.
+	FieldRank = "rank"
+	// FieldActive holds the string denoting the active field in the database.
+	FieldActive = "active"
+	// FieldCreatedAt holds the string denoting the created_at field in the database.
+	FieldCreatedAt = "created_at"
+	// FieldURL holds the string denoting the url field in the database.
+	FieldURL = "url"
+	// FieldStrings holds the string denoting the strings field in the database.
+	FieldStrings = "strings"
+	// FieldState holds the string denoting the state field in the database.
+	FieldState = "state"
+	// FieldUUID holds the string denoting the uuid field in the database.
+	FieldUUID = "uuid"
 	// EdgeCars holds the string denoting the cars edge name in mutations.
 	EdgeCars = "cars"
 	// EdgeGroups holds the string denoting the groups edge name in mutations.
@@ -36,6 +57,13 @@ var Columns = []string{
 	FieldID,
 	FieldAge,
 	FieldName,
+	FieldRank,
+	FieldActive,
+	FieldCreatedAt,
+	FieldURL,
+	FieldStrings,
+	FieldState,
+	FieldUUID,
 }
 
 var (
@@ -57,6 +85,33 @@ func ValidColumn(column string) bool {
 var (
 	// AgeValidator is a validator for the "age" field. It is called by the builders before save.
 	AgeValidator func(int) error
-	// DefaultName holds the default value on creation for the "name" field.
-	DefaultName string
+	// DefaultActive holds the default value on creation for the "active" field.
+	DefaultActive bool
+	// DefaultCreatedAt holds the default value on creation for the "created_at" field.
+	DefaultCreatedAt func() time.Time
+	// DefaultUUID holds the default value on creation for the "uuid" field.
+	DefaultUUID func() uuid.UUID
 )
+
+// State defines the type for the "state" enum field.
+type State string
+
+// State values.
+const (
+	StateOn  State = "on"
+	StateOff State = "off"
+)
+
+func (s State) String() string {
+	return string(s)
+}
+
+// StateValidator is a validator for the "state" field enum values. It is called by the builders before save.
+func StateValidator(s State) error {
+	switch s {
+	case StateOn, StateOff:
+		return nil
+	default:
+		return fmt.Errorf("user: invalid enum value for state field: %q", s)
+	}
+}

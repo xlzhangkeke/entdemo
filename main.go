@@ -27,6 +27,11 @@ func main() {
 	//	log.Fatal(err)
 	//}
 	//fmt.Println(user)
+	//man, err := CreateCars(ctx, client)
+	//if err != nil {
+	//	log.Fatal(err)
+	//}
+	//fmt.Println(man)
 	//err = QueryCarUsers(ctx, user)
 	//if err != nil {
 	//	log.Fatal(err)
@@ -161,10 +166,13 @@ func CreateGraph(ctx context.Context, client *ent.Client) error {
 }
 
 func QueryGithub(ctx context.Context, client *ent.Client) error {
+	// (Group(Name=GitHub),)
+	// (User(Name=Ariel, Age=30),)
+	// (Car(Model=Tesla, RegisteredAt=<Time>), Car(Model=Mazda, RegisteredAt=<Time>),)
 	cars, err := client.Group.Query().
-		Where(group.Name("GitHub")). // (Group(Name=GitHub),)
-		QueryUsers().                // (User(Name=Ariel, Age=30),)
-		QueryCars().                 // (Car(Model=Tesla, RegisteredAt=<Time>), Car(Model=Mazda, RegisteredAt=<Time>),)
+		Where(group.Name("GitHub")).
+		QueryUsers().
+		QueryCars().
 		All(ctx)
 	if err != nil {
 		return fmt.Errorf("failed getting cars: %w", err)
@@ -181,11 +189,15 @@ func QueryArielCars(ctx context.Context, client *ent.Client) error {
 		user.Name("Ariel"),
 	).OnlyX(ctx)
 	// Get the groups, that a8m is connected to:
-	cars, err := a8m.QueryGroups(). // (Group(Name=GitHub), Group(Name=GitLab),)
-					QueryUsers(). // (User(Name=Ariel, Age=30), User(Name=Neta, Age=28),)
-					QueryCars().Where(
-		car.Not( //  Get Neta and Ariel cars, but filter out
-			car.Model("Mazda"), //  those who named "Mazda"
+	// (Group(Name=GitHub), Group(Name=GitLab),)
+	// (User(Name=Ariel, Age=30), User(Name=Neta, Age=28),)
+	//  Get Neta and Ariel cars, but filter out
+	//  those who named "Mazda"
+	cars, err := a8m.QueryGroups().
+		QueryUsers().
+		QueryCars().Where(
+		car.Not(
+			car.Model("Mazda"),
 		),
 	).All(ctx)
 	if err != nil {
