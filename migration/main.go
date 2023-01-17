@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"entgo.io/ent/dialect/sql/schema"
 	"log"
 
 	_ "github.com/go-sql-driver/mysql"
@@ -16,7 +17,7 @@ func main() {
 	defer client.Close()
 	client = client.Debug()
 	// Run the auto migration tool.
-	if err := client.Schema.Create(context.Background()); err != nil {
+	if err := client.Schema.Create(context.Background(), schema.WithForeignKeys(false)); err != nil {
 		log.Fatalf("failed creating schema resources: %v", err)
 	}
 }

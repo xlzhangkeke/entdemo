@@ -2,6 +2,7 @@ package schema
 
 import (
 	"entgo.io/ent"
+	"entgo.io/ent/dialect"
 	"entgo.io/ent/schema/edge"
 	"entgo.io/ent/schema/field"
 )
@@ -15,6 +16,10 @@ type Car struct {
 func (Car) Fields() []ent.Field {
 	return []ent.Field{
 		field.String("model"),
+		field.Float("amount").SchemaType(map[string]string{
+			dialect.MySQL:    "decimal(6,2)", // Override MySQL.
+			dialect.Postgres: "numeric",      // Override Postgres.
+		}),
 		field.Time("registered_at"),
 	}
 }

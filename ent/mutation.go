@@ -40,6 +40,8 @@ type CarMutation struct {
 	typ           string
 	id            *int
 	model         *string
+	amount        *float64
+	addamount     *float64
 	registered_at *time.Time
 	clearedFields map[string]struct{}
 	owner         *int
@@ -183,6 +185,62 @@ func (m *CarMutation) ResetModel() {
 	m.model = nil
 }
 
+// SetAmount sets the "amount" field.
+func (m *CarMutation) SetAmount(f float64) {
+	m.amount = &f
+	m.addamount = nil
+}
+
+// Amount returns the value of the "amount" field in the mutation.
+func (m *CarMutation) Amount() (r float64, exists bool) {
+	v := m.amount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// OldAmount returns the old "amount" field's value of the Car entity.
+// If the Car object wasn't provided to the builder, the object is fetched from the database.
+// An error is returned if the mutation operation is not UpdateOne, or the database query fails.
+func (m *CarMutation) OldAmount(ctx context.Context) (v float64, err error) {
+	if !m.op.Is(OpUpdateOne) {
+		return v, errors.New("OldAmount is only allowed on UpdateOne operations")
+	}
+	if m.id == nil || m.oldValue == nil {
+		return v, errors.New("OldAmount requires an ID field in the mutation")
+	}
+	oldValue, err := m.oldValue(ctx)
+	if err != nil {
+		return v, fmt.Errorf("querying old value for OldAmount: %w", err)
+	}
+	return oldValue.Amount, nil
+}
+
+// AddAmount adds f to the "amount" field.
+func (m *CarMutation) AddAmount(f float64) {
+	if m.addamount != nil {
+		*m.addamount += f
+	} else {
+		m.addamount = &f
+	}
+}
+
+// AddedAmount returns the value that was added to the "amount" field in this mutation.
+func (m *CarMutation) AddedAmount() (r float64, exists bool) {
+	v := m.addamount
+	if v == nil {
+		return
+	}
+	return *v, true
+}
+
+// ResetAmount resets all changes to the "amount" field.
+func (m *CarMutation) ResetAmount() {
+	m.amount = nil
+	m.addamount = nil
+}
+
 // SetRegisteredAt sets the "registered_at" field.
 func (m *CarMutation) SetRegisteredAt(t time.Time) {
 	m.registered_at = &t
@@ -277,9 +335,12 @@ func (m *CarMutation) Type() string {
 // order to get all numeric fields that were incremented/decremented, call
 // AddedFields().
 func (m *CarMutation) Fields() []string {
-	fields := make([]string, 0, 2)
+	fields := make([]string, 0, 3)
 	if m.model != nil {
 		fields = append(fields, car.FieldModel)
+	}
+	if m.amount != nil {
+		fields = append(fields, car.FieldAmount)
 	}
 	if m.registered_at != nil {
 		fields = append(fields, car.FieldRegisteredAt)
@@ -294,6 +355,8 @@ func (m *CarMutation) Field(name string) (ent.Value, bool) {
 	switch name {
 	case car.FieldModel:
 		return m.Model()
+	case car.FieldAmount:
+		return m.Amount()
 	case car.FieldRegisteredAt:
 		return m.RegisteredAt()
 	}
@@ -307,6 +370,8 @@ func (m *CarMutation) OldField(ctx context.Context, name string) (ent.Value, err
 	switch name {
 	case car.FieldModel:
 		return m.OldModel(ctx)
+	case car.FieldAmount:
+		return m.OldAmount(ctx)
 	case car.FieldRegisteredAt:
 		return m.OldRegisteredAt(ctx)
 	}
@@ -325,6 +390,13 @@ func (m *CarMutation) SetField(name string, value ent.Value) error {
 		}
 		m.SetModel(v)
 		return nil
+	case car.FieldAmount:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.SetAmount(v)
+		return nil
 	case car.FieldRegisteredAt:
 		v, ok := value.(time.Time)
 		if !ok {
@@ -339,13 +411,21 @@ func (m *CarMutation) SetField(name string, value ent.Value) error {
 // AddedFields returns all numeric fields that were incremented/decremented during
 // this mutation.
 func (m *CarMutation) AddedFields() []string {
-	return nil
+	var fields []string
+	if m.addamount != nil {
+		fields = append(fields, car.FieldAmount)
+	}
+	return fields
 }
 
 // AddedField returns the numeric value that was incremented/decremented on a field
 // with the given name. The second boolean return value indicates that this field
 // was not set, or was not defined in the schema.
 func (m *CarMutation) AddedField(name string) (ent.Value, bool) {
+	switch name {
+	case car.FieldAmount:
+		return m.AddedAmount()
+	}
 	return nil, false
 }
 
@@ -354,6 +434,13 @@ func (m *CarMutation) AddedField(name string) (ent.Value, bool) {
 // type.
 func (m *CarMutation) AddField(name string, value ent.Value) error {
 	switch name {
+	case car.FieldAmount:
+		v, ok := value.(float64)
+		if !ok {
+			return fmt.Errorf("unexpected type %T for field %s", value, name)
+		}
+		m.AddAmount(v)
+		return nil
 	}
 	return fmt.Errorf("unknown Car numeric field %s", name)
 }
@@ -383,6 +470,9 @@ func (m *CarMutation) ResetField(name string) error {
 	switch name {
 	case car.FieldModel:
 		m.ResetModel()
+		return nil
+	case car.FieldAmount:
+		m.ResetAmount()
 		return nil
 	case car.FieldRegisteredAt:
 		m.ResetRegisteredAt()
@@ -549,6 +639,12 @@ func (m GroupMutation) Tx() (*Tx, error) {
 	tx := &Tx{config: m.config}
 	tx.init()
 	return tx, nil
+}
+
+// SetID sets the value of the id field. Note that this
+// operation is only accepted on creation of Group entities.
+func (m *GroupMutation) SetID(id int) {
+	m.id = &id
 }
 
 // ID returns the ID value in the mutation. Note that the ID is only available

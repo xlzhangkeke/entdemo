@@ -68,5 +68,9 @@ CREATE TABLE `group_users` (
 ) CHARSET utf8mb4 COLLATE utf8mb4_bin;
 
 
+set FOREIGN_KEY_CHECKS = 0;
 
+drop table users,`groups`,cars,group_users;
+
+set FOREIGN_KEY_CHECKS = 1;
 

@@ -27,6 +27,12 @@ func (cc *CarCreate) SetModel(s string) *CarCreate {
 	return cc
 }
 
+// SetAmount sets the "amount" field.
+func (cc *CarCreate) SetAmount(f float64) *CarCreate {
+	cc.mutation.SetAmount(f)
+	return cc
+}
+
 // SetRegisteredAt sets the "registered_at" field.
 func (cc *CarCreate) SetRegisteredAt(t time.Time) *CarCreate {
 	cc.mutation.SetRegisteredAt(t)
@@ -131,6 +137,9 @@ func (cc *CarCreate) check() error {
 	if _, ok := cc.mutation.Model(); !ok {
 		return &ValidationError{Name: "model", err: errors.New(`ent: missing required field "Car.model"`)}
 	}
+	if _, ok := cc.mutation.Amount(); !ok {
+		return &ValidationError{Name: "amount", err: errors.New(`ent: missing required field "Car.amount"`)}
+	}
 	if _, ok := cc.mutation.RegisteredAt(); !ok {
 		return &ValidationError{Name: "registered_at", err: errors.New(`ent: missing required field "Car.registered_at"`)}
 	}
@@ -164,6 +173,10 @@ func (cc *CarCreate) createSpec() (*Car, *sqlgraph.CreateSpec) {
 	if value, ok := cc.mutation.Model(); ok {
 		_spec.SetField(car.FieldModel, field.TypeString, value)
 		_node.Model = value
+	}
+	if value, ok := cc.mutation.Amount(); ok {
+		_spec.SetField(car.FieldAmount, field.TypeFloat64, value)
+		_node.Amount = value
 	}
 	if value, ok := cc.mutation.RegisteredAt(); ok {
 		_spec.SetField(car.FieldRegisteredAt, field.TypeTime, value)

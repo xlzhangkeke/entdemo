@@ -9,6 +9,8 @@ const (
 	FieldID = "id"
 	// FieldModel holds the string denoting the model field in the database.
 	FieldModel = "model"
+	// FieldAmount holds the string denoting the amount field in the database.
+	FieldAmount = "amount"
 	// FieldRegisteredAt holds the string denoting the registered_at field in the database.
 	FieldRegisteredAt = "registered_at"
 	// EdgeOwner holds the string denoting the owner edge name in mutations.
@@ -28,6 +30,7 @@ const (
 var Columns = []string{
 	FieldID,
 	FieldModel,
+	FieldAmount,
 	FieldRegisteredAt,
 }
 

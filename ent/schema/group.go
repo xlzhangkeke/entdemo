@@ -15,6 +15,7 @@ type Group struct {
 // Fields of the Group.
 func (Group) Fields() []ent.Field {
 	return []ent.Field{
+		field.Int("id").StructTag(`json:"oid,omitempty"`),
 		// Regexp validation for group name.
 		field.String("name").Match(regexp.MustCompile("[a-zA-Z_]+$")),
 	}

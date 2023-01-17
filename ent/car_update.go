@@ -35,6 +35,19 @@ func (cu *CarUpdate) SetModel(s string) *CarUpdate {
 	return cu
 }
 
+// SetAmount sets the "amount" field.
+func (cu *CarUpdate) SetAmount(f float64) *CarUpdate {
+	cu.mutation.ResetAmount()
+	cu.mutation.SetAmount(f)
+	return cu
+}
+
+// AddAmount adds f to the "amount" field.
+func (cu *CarUpdate) AddAmount(f float64) *CarUpdate {
+	cu.mutation.AddAmount(f)
+	return cu
+}
+
 // SetRegisteredAt sets the "registered_at" field.
 func (cu *CarUpdate) SetRegisteredAt(t time.Time) *CarUpdate {
 	cu.mutation.SetRegisteredAt(t)
@@ -146,6 +159,12 @@ func (cu *CarUpdate) sqlSave(ctx context.Context) (n int, err error) {
 	if value, ok := cu.mutation.Model(); ok {
 		_spec.SetField(car.FieldModel, field.TypeString, value)
 	}
+	if value, ok := cu.mutation.Amount(); ok {
+		_spec.SetField(car.FieldAmount, field.TypeFloat64, value)
+	}
+	if value, ok := cu.mutation.AddedAmount(); ok {
+		_spec.AddField(car.FieldAmount, field.TypeFloat64, value)
+	}
 	if value, ok := cu.mutation.RegisteredAt(); ok {
 		_spec.SetField(car.FieldRegisteredAt, field.TypeTime, value)
 	}
@@ -206,6 +225,19 @@ type CarUpdateOne struct {
 // SetModel sets the "model" field.
 func (cuo *CarUpdateOne) SetModel(s string) *CarUpdateOne {
 	cuo.mutation.SetModel(s)
+	return cuo
+}
+
+// SetAmount sets the "amount" field.
+func (cuo *CarUpdateOne) SetAmount(f float64) *CarUpdateOne {
+	cuo.mutation.ResetAmount()
+	cuo.mutation.SetAmount(f)
+	return cuo
+}
+
+// AddAmount adds f to the "amount" field.
+func (cuo *CarUpdateOne) AddAmount(f float64) *CarUpdateOne {
+	cuo.mutation.AddAmount(f)
 	return cuo
 }
 
@@ -349,6 +381,12 @@ func (cuo *CarUpdateOne) sqlSave(ctx context.Context) (_node *Car, err error) {
 	}
 	if value, ok := cuo.mutation.Model(); ok {
 		_spec.SetField(car.FieldModel, field.TypeString, value)
+	}
+	if value, ok := cuo.mutation.Amount(); ok {
+		_spec.SetField(car.FieldAmount, field.TypeFloat64, value)
+	}
+	if value, ok := cuo.mutation.AddedAmount(); ok {
+		_spec.AddField(car.FieldAmount, field.TypeFloat64, value)
 	}
 	if value, ok := cuo.mutation.RegisteredAt(); ok {
 		_spec.SetField(car.FieldRegisteredAt, field.TypeTime, value)

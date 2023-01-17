@@ -12,6 +12,7 @@ var (
 	CarsColumns = []*schema.Column{
 		{Name: "id", Type: field.TypeInt, Increment: true},
 		{Name: "model", Type: field.TypeString},
+		{Name: "amount", Type: field.TypeFloat64, SchemaType: map[string]string{"mysql": "decimal(6,2)", "postgres": "numeric"}},
 		{Name: "registered_at", Type: field.TypeTime},
 		{Name: "user_cars", Type: field.TypeInt, Nullable: true},
 	}
@@ -23,7 +24,7 @@ var (
 		ForeignKeys: []*schema.ForeignKey{
 			{
 				Symbol:     "cars_users_cars",
-				Columns:    []*schema.Column{CarsColumns[3]},
+				Columns:    []*schema.Column{CarsColumns[4]},
 				RefColumns: []*schema.Column{UsersColumns[0]},
 				OnDelete:   schema.SetNull,
 			},
