@@ -25,3 +25,21 @@ go generate ./ent
 
 [pause]
 https://entgo.io/docs/schema-fields
+
+Relation definitions between A and B, where A is the owner of the edge and B uses this edge as a back-reference:
+
+- O2O
+  1. A have a unique edge (E) to B, and B have a back-reference unique edge (E') for E.
+  2. A have a unique edge (E) to A.
+
+- O2M (The "Many" side, keeps a reference to the "One" side).
+  1. A have an edge (E) to B (not unique), and B doesn't have a back-reference edge for E.
+  2. A have an edge (E) to B (not unique), and B have a back-reference unique edge (E') for E.
+
+- M2O (The "Many" side, holds the reference to the "One" side).
+  1. A have a unique edge (E) to B, and B doesn't have a back-reference edge for E.
+  2. A have a unique edge (E) to B, and B have a back-reference non-unique edge (E') for E.
+
+- M2M
+  1. A have an edge (E) to B (not unique), and B have a back-reference non-unique edge (E') for E.
+  2. A have an edge (E) to A (not unique).
